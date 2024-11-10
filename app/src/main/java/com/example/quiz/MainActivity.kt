@@ -45,15 +45,25 @@ class QuizViewModel : ViewModel() {
         Pair(R.drawable.bandeira_brasil, "Brasil"),
         Pair(R.drawable.bandeira_cazaquistao, "Cazaquistão"),
         Pair(R.drawable.bandeira_albania, "Albânia"),
-        Pair(R.drawable.bandeira_jamaica, "Jamaica")
+        Pair(R.drawable.bandeira_jamaica, "Jamaica"),
+        Pair(R.drawable.bandeira_eslovenia, "Eslovênia"),
+        Pair(R.drawable.bandeira_mocambique, "Moçambique"),
+        Pair(R.drawable.bandeira_nova_zelandia, "Nova Zelândia"),
+        Pair(R.drawable.bandeira_panama, "Panamá"),
+        Pair(R.drawable.bandeira_sri_lanka, "Sri Lanka"),
+        Pair(R.drawable.bandeira_suecia, "Suécia"),
+        Pair(R.drawable.bandeira_equador, "Equador"),
+        Pair(R.drawable.bandeira_malasia, "Malásia")
     )
 
+    private var availableFlags = flagsAndAnswers.toMutableList()
     var currentFlag by mutableStateOf(0)
     var correctAnswer by mutableStateOf("")
     var shuffledAnswers by mutableStateOf(listOf<String>())
     var correctCount by mutableStateOf(0)
     var errorCount by mutableStateOf(0)
     var showErrorDialog by mutableStateOf(false)
+    var showVictoryDialog by mutableStateOf(false)
 
     init {
         nextQuestion()
@@ -63,7 +73,11 @@ class QuizViewModel : ViewModel() {
     fun checkAnswer(selectedAnswer: String) {
         if (selectedAnswer == correctAnswer) {
             correctCount++
-            nextQuestion()
+            if (availableFlags.isEmpty()) {
+                showVictoryDialog = true
+            } else {
+                nextQuestion()
+            }
         } else {
             errorCount++
             showErrorDialog = true
@@ -72,10 +86,9 @@ class QuizViewModel : ViewModel() {
 
     // Atualiza a pergunta e embaralha as respostas
     fun nextQuestion() {
-        if (correctCount + errorCount >= 4) {
-            resetGame()
-        } else {
-            val (flag, answer) = flagsAndAnswers.random()
+        if (availableFlags.isNotEmpty()) {
+            val (flag, answer) = availableFlags.random()
+            availableFlags.remove(Pair(flag, answer))
             currentFlag = flag
             correctAnswer = answer
             shuffledAnswers = (flagsAndAnswers.map { it.second } - answer).shuffled().take(3) + answer
@@ -83,10 +96,12 @@ class QuizViewModel : ViewModel() {
         }
     }
 
-    // Reseta o jogo após 4 perguntas
+    // Reseta o jogo após responder todas as perguntas
     fun resetGame() {
+        availableFlags = flagsAndAnswers.toMutableList()
         correctCount = 0
         errorCount = 0
+        showVictoryDialog = false
         nextQuestion()
     }
 }
@@ -95,6 +110,9 @@ class QuizViewModel : ViewModel() {
 fun TelaQuiz(viewModel: QuizViewModel) {
     if (viewModel.showErrorDialog) {
         ErrorDialog(onDismiss = { viewModel.showErrorDialog = false; viewModel.resetGame() })
+    }
+    if (viewModel.showVictoryDialog) {
+        VictoryDialog(onDismiss = { viewModel.resetGame() })
     }
 
     Column(
@@ -140,7 +158,7 @@ fun TelaQuiz(viewModel: QuizViewModel) {
         Spacer(modifier = Modifier.height(20.dp))
 
         Text(
-            text = viewModel.questionText,  // Pergunta fixa
+            text = viewModel.questionText,
             fontWeight = FontWeight.Bold,
             fontSize = 20.sp,
             modifier = Modifier.padding(bottom = 15.dp)
@@ -175,6 +193,21 @@ fun ErrorDialog(onDismiss: () -> Unit) {
         },
         text = {
             Text("Você errou!")
+        }
+    )
+}
+
+@Composable
+fun VictoryDialog(onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = { onDismiss() },
+        confirmButton = {
+            Button(onClick = onDismiss) {
+                Text("Jogar Novamente")
+            }
+        },
+        text = {
+            Text("Você venceu! Parabéns!")
         }
     )
 }
