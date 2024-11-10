@@ -6,8 +6,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,7 +15,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -103,8 +105,85 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.CenterHorizontally)
-                    .padding(vertical = 8.dp)
+                    .padding(horizontal = 8.dp, vertical = 10.dp)
             )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Text(
+                text = "De qual país é esta bandeira?",
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp,
+                modifier = Modifier
+                    .padding(bottom = 15.dp)
+            )
+
+            Button(
+                onClick = { /* Ação */ },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                    contentColor = Color(0xFF5566FF)
+                ),
+                modifier = Modifier
+                    .padding(horizontal = 20.dp, vertical = 10.dp)
+                    .fillMaxWidth()
+                    .border(1.dp, Color(0xFF5566FF), RoundedCornerShape(8.dp))
+            ) {
+                Text("Bandeira 1",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                    )
+            }
+            Button(
+                onClick = { /* Ação */ },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                    contentColor = Color(0xFF5566FF)
+                ),
+                modifier = Modifier
+                    .padding(horizontal = 20.dp, vertical = 10.dp)
+                    .fillMaxWidth()
+                    .border(1.dp, Color(0xFF5566FF), RoundedCornerShape(8.dp))
+            ) {
+                Text("Bandeira 2",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+            }
+
+            Button(
+                onClick = { /* Ação */ },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                    contentColor = Color(0xFF5566FF)
+                ),
+                modifier = Modifier
+                    .padding(horizontal = 20.dp, vertical = 10.dp)
+                    .fillMaxWidth()
+                    .border(1.dp, Color(0xFF5566FF), RoundedCornerShape(8.dp))
+            ) {
+                Text("Bandeira 3",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+            }
+
+            Button(
+                onClick = { /* Ação */ },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                    contentColor = Color(0xFF5566FF)
+                ),
+                modifier = Modifier
+                    .padding(horizontal = 20.dp, vertical = 10.dp)
+                    .fillMaxWidth()
+                    .border(1.dp, Color(0xFF5566FF), RoundedCornerShape(8.dp))
+            ) {
+                Text("Bandeira 4",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+            }
         }
     }
     @Preview
