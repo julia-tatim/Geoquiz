@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Quiz</string>
     <string name="title_activity_ranking">Ranking</string>
+    <string name="title_activity_menu">Menu</string>
 </resources>
