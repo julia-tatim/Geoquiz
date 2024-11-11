@@ -13,6 +13,11 @@
         android:theme="@style/Theme.Quiz"
         tools:targetApi="31">
         <activity
+            android:name=".Menu"
+            android:exported="false"
+            android:label="@string/title_activity_menu"
+            android:theme="@style/Theme.Quiz" />
+        <activity
             android:name=".Ranking"
             android:exported="false"
             android:label="@string/title_activity_ranking"
