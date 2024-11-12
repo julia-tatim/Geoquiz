@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import com.example.quiz.ui.theme.QuizTheme
+import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,11 +38,9 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// ViewModel para gerenciar o estado do quiz
 class QuizViewModel : ViewModel() {
     val questionText = "De qual país é esta bandeira?"
 
-    // Lista de bandeiras e respostas associadas
     private val flagsAndAnswers = listOf(
         Pair(R.drawable.bandeira_brasil, "Brasil"),
         Pair(R.drawable.bandeira_cazaquistao, "Cazaquistão"),
@@ -62,29 +62,21 @@ class QuizViewModel : ViewModel() {
     var shuffledAnswers by mutableStateOf(listOf<String>())
     var correctCount by mutableStateOf(0)
     var errorCount by mutableStateOf(0)
-    var showErrorDialog by mutableStateOf(false)
-    var showVictoryDialog by mutableStateOf(false)
 
     init {
         nextQuestion()
     }
 
-    // Verifica a resposta escolhida
-    fun checkAnswer(selectedAnswer: String) {
-        if (selectedAnswer == correctAnswer) {
+    fun checkAnswer(selectedAnswer: String): Boolean {
+        val isAnswerCorrect = selectedAnswer == correctAnswer
+        if (isAnswerCorrect) {
             correctCount++
-            if (availableFlags.isEmpty()) {
-                showVictoryDialog = true
-            } else {
-                nextQuestion()
-            }
         } else {
             errorCount++
-            showErrorDialog = true
         }
+        return isAnswerCorrect
     }
 
-    // Atualiza a pergunta e embaralha as respostas
     fun nextQuestion() {
         if (availableFlags.isNotEmpty()) {
             val (flag, answer) = availableFlags.random()
@@ -96,23 +88,29 @@ class QuizViewModel : ViewModel() {
         }
     }
 
-    // Reseta o jogo após responder todas as perguntas
-    fun resetGame() {
-        availableFlags = flagsAndAnswers.toMutableList()
-        correctCount = 0
-        errorCount = 0
-        showVictoryDialog = false
-        nextQuestion()
-    }
+//    fun resetGame() {
+//        availableFlags = flagsAndAnswers.toMutableList()
+//        correctCount = 0
+//        errorCount = 0
+//        nextQuestion()
+//    }
 }
 
 @Composable
 fun TelaQuiz(viewModel: QuizViewModel) {
-    if (viewModel.showErrorDialog) {
-        ErrorDialog(onDismiss = { viewModel.showErrorDialog = false; viewModel.resetGame() })
+    var selectedAnswer by remember { mutableStateOf<String?>(null) }
+    var isCorrect by remember { mutableStateOf<Boolean?>(null) }
+
+    LaunchedEffect(viewModel.currentFlag) {
+        selectedAnswer = null
+        isCorrect = null
     }
-    if (viewModel.showVictoryDialog) {
-        VictoryDialog(onDismiss = { viewModel.resetGame() })
+
+    LaunchedEffect(selectedAnswer) {
+        if (selectedAnswer != null) {
+            delay(500)
+            viewModel.nextQuestion()
+        }
     }
 
     Column(
@@ -130,10 +128,10 @@ fun TelaQuiz(viewModel: QuizViewModel) {
             fontSize = 24.sp,
             letterSpacing = 1.sp
         )
-        Divider(
+        HorizontalDivider(
+            modifier = Modifier.padding(vertical = 18.dp),
             thickness = 1.dp,
-            color = Color(0xFF5566FF),
-            modifier = Modifier.padding(vertical = 18.dp)
+            color = Color(0xFF5566FF)
         )
         Row(
             modifier = Modifier
@@ -165,51 +163,33 @@ fun TelaQuiz(viewModel: QuizViewModel) {
         )
 
         viewModel.shuffledAnswers.forEach { answer ->
+            val backgroundColor by animateColorAsState(
+                targetValue = when {
+                    isCorrect == true && selectedAnswer == answer -> Color.Green
+                    isCorrect == false && selectedAnswer == answer -> Color.Red
+                    else -> Color.White
+                }, label = "alterarCorBotão"
+            )
             Button(
-                onClick = { viewModel.checkAnswer(answer) },
+                onClick = {
+                    selectedAnswer = answer
+                    isCorrect = viewModel.checkAnswer(answer)
+                },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White,
+                    containerColor = backgroundColor,
                     contentColor = Color(0xFF5566FF)
                 ),
                 modifier = Modifier
                     .padding(horizontal = 20.dp, vertical = 10.dp)
                     .fillMaxWidth()
-                    .border(1.dp, Color(0xFF5566FF), RoundedCornerShape(8.dp))
+                    .border(1.dp, Color(0xFF5566FF), RoundedCornerShape(32.dp))
+                    .clip(RoundedCornerShape(32.dp))
+                    .heightIn(min = 56.dp)
             ) {
                 Text(answer, fontWeight = FontWeight.Bold, fontSize = 18.sp)
             }
         }
     }
-}
-
-@Composable
-fun ErrorDialog(onDismiss: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = { onDismiss() },
-        confirmButton = {
-            Button(onClick = onDismiss) {
-                Text("Reiniciar")
-            }
-        },
-        text = {
-            Text("Você errou!")
-        }
-    )
-}
-
-@Composable
-fun VictoryDialog(onDismiss: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = { onDismiss() },
-        confirmButton = {
-            Button(onClick = onDismiss) {
-                Text("Jogar Novamente")
-            }
-        },
-        text = {
-            Text("Você venceu! Parabéns!")
-        }
-    )
 }
 
 @Preview
