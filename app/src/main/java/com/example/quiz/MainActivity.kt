@@ -62,8 +62,6 @@ class QuizViewModel : ViewModel() {
     var shuffledAnswers by mutableStateOf(listOf<String>())
     var correctCount by mutableStateOf(0)
     var errorCount by mutableStateOf(0)
-    var showErrorDialog by mutableStateOf(false)
-    var showVictoryDialog by mutableStateOf(false)
 
     init {
         nextQuestion()
@@ -90,13 +88,12 @@ class QuizViewModel : ViewModel() {
         }
     }
 
-    fun resetGame() {
-        availableFlags = flagsAndAnswers.toMutableList()
-        correctCount = 0
-        errorCount = 0
-        showVictoryDialog = false
-        nextQuestion()
-    }
+//    fun resetGame() {
+//        availableFlags = flagsAndAnswers.toMutableList()
+//        correctCount = 0
+//        errorCount = 0
+//        nextQuestion()
+//    }
 }
 
 @Composable
@@ -131,10 +128,10 @@ fun TelaQuiz(viewModel: QuizViewModel) {
             fontSize = 24.sp,
             letterSpacing = 1.sp
         )
-        Divider(
+        HorizontalDivider(
+            modifier = Modifier.padding(vertical = 18.dp),
             thickness = 1.dp,
-            color = Color(0xFF5566FF),
-            modifier = Modifier.padding(vertical = 18.dp)
+            color = Color(0xFF5566FF)
         )
         Row(
             modifier = Modifier
