@@ -1,47 +1,56 @@
 package com.example.quiz
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.font.FontWeight
 import com.example.quiz.ui.theme.QuizTheme
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 class Ranking : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             QuizTheme {
-                TelaRanking()
-                }
+                val nomeUsuario = intent.getStringExtra("USER_NAME") ?: "Desconhecido"
+                val pontuacao = intent.getIntExtra("SCORE", 0)
+
+
+                val rankings = listOf(
+                    Pair("Jogador 1", 15),
+                    Pair("Jogador 2", 10),
+                    Pair("Jogador 3", 8),
+                    Pair(nomeUsuario, pontuacao)
+                ).sortedByDescending { it.second }
+
+                TelaRanking(rankings, nomeUsuario, pontuacao)
             }
         }
     }
+}
+
 
 @Composable
-fun TelaRanking(){
+fun TelaRanking(rankings: List<Pair<String, Int>>, nomeUsuario: String, pontuacao: Int) {
+    val context = LocalContext.current
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -68,63 +77,48 @@ fun TelaRanking(){
             color = Color(0xFF5566FF),
             fontSize = 22.sp
         )
-        Row (
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 20.dp, horizontal = 20.dp)
-                .border(
-                    width = 1.dp, // Largura da borda
-                    color = Color(0xFF5566FF), // Cor da borda
-                    shape = RoundedCornerShape(8.dp) // Forma arredondada
-                ),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.person),
-                contentDescription = "Icon",
-                contentScale = ContentScale.FillWidth,
+
+        rankings.forEachIndexed { index, ranking ->
+            Row(
                 modifier = Modifier
-                    .padding(start = 8.dp)
-            )
-            Column {
+                    .fillMaxWidth()
+                    .padding(vertical = 10.dp)
+                    .border(
+                        width = 1.dp, color = Color(0xFF5566FF),
+                        shape = RoundedCornerShape(8.dp)
+                    ),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
-                    text = "User",
+                    text = ranking.first,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF5566FF),
                     fontSize = 16.sp,
-                    modifier = Modifier
-                        .padding(bottom = 5.dp)
+                    modifier = Modifier.padding(start = 10.dp)
                 )
-                Row {
-                    Text(
-                        text = "Pontuação: ",
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black,
-                        fontSize = 12.sp
-                    )
-                    Text(
-                        text = "00",
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF5566FF),
-                        fontSize = 12.sp
-                    )
-                }
+                Text(
+                    text = "Pontuação: ${ranking.second}",
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF5566FF),
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(end = 10.dp)
+                )
             }
-            Text(
-                text = "1°",
-                fontWeight = FontWeight.Bold,
-                color = Color.Black,
-                fontSize = 22.sp,
-                modifier = Modifier
-                    .padding(end = 10.dp)
-            )
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+
+        Button(
+            onClick = {
+
+                val intent = Intent(context, NomeActivity::class.java)
+                context.startActivity(intent)
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Voltar ao Início")
         }
     }
-}
-
-@Preview
-@Composable
-fun TelaRankingPreview(){
-    TelaRanking()
 }

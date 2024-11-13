@@ -1,5 +1,7 @@
 package com.example.quiz
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -32,9 +34,21 @@ class MainActivity : ComponentActivity() {
         setContent {
             QuizTheme {
                 val quizViewModel: QuizViewModel by viewModels()
-                TelaQuiz(quizViewModel)
+                TelaQuiz(quizViewModel) {
+                    val sharedPreferences = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+                    val nomeUsuario = sharedPreferences.getString("userName", "Desconhecido") ?: "Desconhecido"
+                    navigateToRanking(nomeUsuario, quizViewModel.correctCount)
+                }
             }
         }
+    }
+
+    private fun navigateToRanking(nome: String, pontuacao: Int) {
+        val intent = Intent(this, Ranking::class.java).apply {
+            putExtra("USER_NAME", nome)
+            putExtra("SCORE", pontuacao)
+        }
+        startActivity(intent)
     }
 }
 
@@ -62,6 +76,7 @@ class QuizViewModel : ViewModel() {
     var shuffledAnswers by mutableStateOf(listOf<String>())
     var correctCount by mutableStateOf(0)
     var errorCount by mutableStateOf(0)
+    var quizFinished by mutableStateOf(false)
 
     init {
         nextQuestion()
@@ -73,6 +88,9 @@ class QuizViewModel : ViewModel() {
             correctCount++
         } else {
             errorCount++
+        }
+        if (availableFlags.isEmpty()) {
+            quizFinished = true
         }
         return isAnswerCorrect
     }
@@ -87,17 +105,10 @@ class QuizViewModel : ViewModel() {
             shuffledAnswers = shuffledAnswers.shuffled()
         }
     }
-
-//    fun resetGame() {
-//        availableFlags = flagsAndAnswers.toMutableList()
-//        correctCount = 0
-//        errorCount = 0
-//        nextQuestion()
-//    }
 }
 
 @Composable
-fun TelaQuiz(viewModel: QuizViewModel) {
+fun TelaQuiz(viewModel: QuizViewModel, onQuizFinish: () -> Unit) {
     var selectedAnswer by remember { mutableStateOf<String?>(null) }
     var isCorrect by remember { mutableStateOf<Boolean?>(null) }
 
@@ -109,7 +120,11 @@ fun TelaQuiz(viewModel: QuizViewModel) {
     LaunchedEffect(selectedAnswer) {
         if (selectedAnswer != null) {
             delay(500)
-            viewModel.nextQuestion()
+            if (viewModel.quizFinished) {
+                onQuizFinish()
+            } else {
+                viewModel.nextQuestion()
+            }
         }
     }
 
@@ -168,7 +183,7 @@ fun TelaQuiz(viewModel: QuizViewModel) {
                     isCorrect == true && selectedAnswer == answer -> Color.Green
                     isCorrect == false && selectedAnswer == answer -> Color.Red
                     else -> Color.White
-                }, label = "alterarCorBotão"
+                }
             )
             Button(
                 onClick = {
@@ -196,5 +211,5 @@ fun TelaQuiz(viewModel: QuizViewModel) {
 @Composable
 fun TelaQuizPreview() {
     val quizViewModel = QuizViewModel()
-    TelaQuiz(viewModel = quizViewModel)
+    TelaQuiz(viewModel = quizViewModel) {}
 }

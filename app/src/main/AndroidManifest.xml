@@ -12,6 +12,19 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Quiz"
         tools:targetApi="31">
+
+        <!-- NomeActivity será a primeira tela -->
+        <activity
+            android:name=".NomeActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Quiz">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Outras atividades -->
         <activity
             android:name=".Menu"
             android:exported="false"
@@ -22,16 +35,12 @@
             android:exported="false"
             android:label="@string/title_activity_ranking"
             android:theme="@style/Theme.Quiz" />
+
+        <!-- MainActivity será chamada após NomeActivity -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.Quiz">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:theme="@style/Theme.Quiz" />
     </application>
 
 </manifest>
